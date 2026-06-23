@@ -1,0 +1,161 @@
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  #site { font-family: Arial, sans-serif; background: #f4f6f9; }
+
+  #site .navbar {
+    background: #1a3a8f !important;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  #site .brand-text {
+    color: #ffffff !important;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  #site .brand-sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: #ccd6f6 !important;
+  }
+  #site .nav-links { display: flex; gap: 4px; }
+  #site .nav-btn {
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 7px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  #site .nav-btn:hover { background: rgba(255,255,255,0.25) !important; }
+  #site .nav-btn.active { background: rgba(255,255,255,0.25) !important; border-color: #ffffff !important; }
+
+  #site .tricolor { height: 5px; display: flex; }
+  #site .tricolor span { flex: 1; }
+
+  #site .page { display: none; }
+  #site .page.active { display: block; }
+
+  #site .hero {
+    background: #1a3a8f;
+    padding: 52px 2rem 44px;
+    text-align: center;
+  }
+  #site .hero h1 { font-size: 26px; font-weight: 700; color: #ffffff !important; margin-bottom: 10px; }
+  #site .hero p { font-size: 15px; color: #dde5ff !important; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+  #site .rpt-header {
+    background: #1a3a8f;
+    padding: 36px 2rem 30px;
+    text-align: center;
+  }
+  #site .rpt-header h1 { font-size: 24px; font-weight: 700; color: #ffffff !important; margin-bottom: 6px; }
+  #site .rpt-header p { font-size: 14px; color: #dde5ff !important; }
+
+  #site .rpt-body { max-width: 860px; margin: 0 auto; padding: 36px 2rem; }
+
+  #site .year-label {
+    font-size: 12px; font-weight: 700; color: #6b7280 !important;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #dde1ea;
+    padding-bottom: 8px; margin-bottom: 16px;
+  }
+  #site .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 12px;
+  }
+  #site .rcard {
+    background: #ffffff;
+    border: 1px solid #dde1ea;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    text-decoration: none;
+    transition: border-color 0.2s;
+  }
+  #site .rcard:hover { border-color: #1a3a8f; }
+  #site .rbadge {
+    background: #eef2ff; color: #1a3a8f !important;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    display: inline-block;
+  }
+  #site .rtitle { font-size: 14px; font-weight: 700; color: #1a1a2e !important; }
+  #site .rsub { font-size: 11px; color: #9aa1b4 !important; }
+  #site .rlink { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #1a3a8f !important; margin-top: 4px; }
+
+  #site footer {
+    background: #0d1f5a;
+    padding: 18px 2rem;
+    text-align: center;
+    font-size: 12px;
+    color: #9aaad4 !important;
+    margin-top: 40px;
+  }
+  #site footer strong { color: #dde5ff !important; }
+</style>
+
+<div id="site">
+  <nav class="navbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.15)"/><text x="18" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="Arial">OM</text></svg>
+      <span class="brand-text">Ouvidoria Municipal<small class="brand-sub">Prefeitura de Itupeva</small></span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="show('home',this)">Início</button>
+      <button class="nav-btn" onclick="show('reports',this)">Relatórios</button>
+    </div>
+  </nav>
+  <div class="tricolor"><span style="background:#1a3a8f"></span><span style="background:#f5a623"></span><span style="background:#27ae60"></span></div>
+
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <h1>Ouvidoria Municipal de Itupeva</h1>
+      <p>Conteúdo em breve.</p>
+    </div>
+    <footer><strong>Ouvidoria Municipal de Itupeva</strong> · Prefeitura Municipal de Itupeva · Estado de São Paulo</footer>
+  </div>
+
+  <div class="page" id="page-reports">
+    <div class="rpt-header">
+      <h1>Relatórios da Ouvidoria</h1>
+      <p>Publicações mensais · 2026</p>
+    </div>
+    <div class="tricolor"><span style="background:#1a3a8f"></span><span style="background:#f5a623"></span><span style="background:#27ae60"></span></div>
+    <div class="rpt-body">
+      <div class="year-label">2026</div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <footer><strong>Ouvidoria Municipal de Itupeva</strong> · Prefeitura Municipal de Itupeva · Estado de São Paulo</footer>
+  </div>
+</div>
+
+<script>
+const months = [
+  {id:'0126',label:'Janeiro'},{id:'0226',label:'Fevereiro'},{id:'0326',label:'Março'},
+  {id:'0426',label:'Abril'},{id:'0526',label:'Maio'},{id:'0626',label:'Junho'}
+];
+months.forEach(m => {
+  const a = document.createElement('a');
+  a.className = 'rcard';
+  a.href = 'rel_' + m.id + '.pdf';
+  a.target = '_blank';
+  a.innerHTML = `<span class="rbadge">${m.label.slice(0,3).toUpperCase()} / 26</span><div class="rtitle">${m.label}</div><div class="rsub">Relatório Mensal · 2026</div><div class="rlink">⬇ Baixar PDF</div>`;
+  document.getElementById('grid').appendChild(a);
+});
+function show(name, btn) {
+  document.querySelectorAll('#site .page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#site .nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
