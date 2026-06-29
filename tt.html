@@ -145,7 +145,7 @@
     <script>
         async function carregarDados() {
             try {
-                const response = await fetch('metricas.json');
+                const response = await fetch('dados/metricas.json');
                 if (!response.ok) throw new Error('Erro ao carregar metricas.json');
                 const dados = await response.json();
                 exibirDados(dados);
