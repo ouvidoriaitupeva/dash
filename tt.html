@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métricas da Ouvidoria</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .meta-info {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .card .description {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+        
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Métricas da Ouvidoria</h1>
+            <div class="meta-info" id="metaInfo">Carregando...</div>
+        </header>
+        
+        <div id="content">
+            <div class="loading">Carregando dados...</div>
+        </div>
+    </div>
+
+    <script>
+        async function carregarDados() {
+            try {
+                const response = await fetch('metricas.json');
+                if (!response.ok) throw new Error('Erro ao carregar metricas.json');
+                const dados = await response.json();
+                exibirDados(dados);
+            } catch (erro) {
+                document.getElementById('content').innerHTML = 
+                    `<div class="error">Erro: ${erro.message}</div>`;
+            }
+        }
+
+        function exibirDados(dados) {
+            // Atualiza meta info
+            const meta = dados.meta;
+            document.getElementById('metaInfo').innerHTML = 
+                `Período: ${formatarData(meta.janela_inicio)} até ${formatarData(meta.janela_fim)} | ` +
+                `Total: ${meta.total_periodo.toLocaleString()} manifestações`;
+
+            // Calcula totais do último mês disponível
+            const ultimosDias = Object.entries(dados.diario).slice(-30);
+            const totalFeitos = ultimosDias.reduce((sum, [,d]) => sum + d.f, 0);
+            const totalAbertos = ultimosDias.reduce((sum, [,d]) => sum + d.fab, 0);
+            const totalConcluidos = ultimosDias.reduce((sum, [,d]) => sum + d.fcc, 0);
+            const totalCancelados = ultimosDias.reduce((sum, [,d]) => sum + d.fcn, 0);
+
+            // Cards principais
+            let html = `
+                <div class="cards">
+                    <div class="card">
+                        <h3>📋 Protocolos Feitos</h3>
+                        <div class="value">${totalFeitos.toLocaleString()}</div>
+                        <div class="description">últimos 30 dias</div>
+                    </div>
+                    <div class="card">
+                        <h3>⏳ Ainda Abertos</h3>
+                        <div class="value">${totalAbertos.toLocaleString()}</div>
+                        <div class="description">do período, sem conclusão</div>
+                    </div>
+                    <div class="card">
+                        <h3>✅ Concluídos</h3>
+                        <div class="value">${totalConcluidos.toLocaleString()}</div>
+                        <div class="description">por data de conclusão</div>
+                    </div>
+                    <div class="card">
+                        <h3>❌ Cancelados</h3>
+                        <div class="value">${totalCancelados.toLocaleString()}</div>
+                        <div class="description">no período</div>
+                    </div>
+                </div>
+            `;
+
+            // Gargalos (abertos há mais de 30 dias)
+            if (dados.abertos_mais_30d && dados.abertos_mais_30d.total > 0) {
+                const gargalos = dados.abertos_mais_30d;
+                html += `
+                    <div class="section">
+                        <h2>🚨 Gargalos - Abertos há mais de ${meta.corte_gargalo_dias} dias</h2>
+                        <p style="margin-bottom: 15px;"><strong>Total:</strong> ${gargalos.total} protocolos</p>
+                        <h3 style="margin: 20px 0 10px;">Por Secretaria</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Secretaria</th>
+                                    <th>Quantidade</th>
+                                    <th>Dias Médio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${gargalos.por_secretaria.slice(0, 10).map(s => `
+                                    <tr>
+                                        <td>${s.nome}</td>
+                                        <td>${s.qtd}</td>
+                                        <td>${s.dias_medio}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <h3 style="margin: 20px 0 10px;">Por Bairro</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bairro</th>
+                                    <th>Quantidade</th>
+                                    <th>Dias Médio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${gargalos.por_bairro.slice(0, 10).map(b => `
+                                    <tr>
+                                        <td>${b.nome}</td>
+                                        <td>${b.qtd}</td>
+                                        <td>${b.dias_medio}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <h3 style="margin: 20px 0 10px;">Por Assunto</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Assunto</th>
+                                    <th>Quantidade</th>
+                                    <th>Dias Médio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${gargalos.por_assunto.slice(0, 10).map(a => `
+                                    <tr>
+                                        <td>${a.nome}</td>
+                                        <td>${a.qtd}</td>
+                                        <td>${a.dias_medio}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        function formatarData(dataStr) {
+            const [ano, mes, dia] = dataStr.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // Carrega os dados ao iniciar
+        carregarDados();
+    </script>
+</body>
+</html>
